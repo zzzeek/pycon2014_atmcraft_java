@@ -1,0 +1,5 @@
+name: atmcraft
+main: com.zzzcomputing.bukkit.atmcraft.AtmCraft
+version: 0.0.1
+description: ATM Machine for minecraft
+author: zzzeek
