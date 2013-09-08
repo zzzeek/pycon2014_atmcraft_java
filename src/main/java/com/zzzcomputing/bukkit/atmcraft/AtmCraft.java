@@ -15,12 +15,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class AtmCraft extends JavaPlugin implements Listener{
 
 	
-    private FileConfiguration config;
+    protected FileConfiguration config;
 
 	@Override
     public void onEnable() {
 
         config = getConfig();
+        saveConfig();
         Bukkit.getPluginManager().registerEvents(this, this);        
         Logger.info("AtmCraft online hooray !");
     }
@@ -36,19 +37,13 @@ public class AtmCraft extends JavaPlugin implements Listener{
     		Block block = event.getClickedBlock();
     		if (isAtmBlock(block)) {
                 Util.sendPlayerMessage(event.getPlayer(), "seems like an ATM!");
-                AtmSession atmSession = new AtmSession(event.getPlayer());
+                AtmSession atmSession = new AtmSession(this, event.getPlayer());
                 atmSession.display();
     		}
     	}
     }
     
     private boolean isAtmBlock(Block block) {
-    	if (block != null) {
-        	Logger.info("blocktype is chest: " + (block.getType() == Material.CHEST));
-        	Logger.info("above block: " + getBlockTypeAbove(block, 1));
-        	Logger.info("below block: " + getBlockTypeAbove(block, -1));
-    	}
-    	
     	return (
     			block != null &&
     			block.getType() == Material.CHEST &&

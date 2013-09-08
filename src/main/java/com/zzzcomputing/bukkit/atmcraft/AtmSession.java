@@ -8,15 +8,21 @@ import org.bukkit.inventory.InventoryHolder;
 public class AtmSession implements InventoryHolder {
 	private Inventory inventory;
 	private Player player;
+	private AtmCraft parent;
 
-	public AtmSession(Player player) {
+	public AtmSession(AtmCraft parent, Player player) {
 		this.player = player;
+		this.parent = parent;
 	}
 
+	public String getBankName() {
+		return this.parent.config.getString("bankname");
+	}
+	
 	@Override
 	public Inventory getInventory() {
 		if (inventory == null) {
-			inventory = Bukkit.createInventory(this, 18, "Welcome " + player.getDisplayName() + "!");
+			inventory = Bukkit.createInventory(this, 18, getBankName() + " - Welcome " + player.getDisplayName() + "!");
 		}
 		return inventory;
 	}
