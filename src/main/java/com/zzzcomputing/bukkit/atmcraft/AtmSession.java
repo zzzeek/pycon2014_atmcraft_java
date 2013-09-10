@@ -1,9 +1,15 @@
 package com.zzzcomputing.bukkit.atmcraft;
 
+import java.util.HashMap;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class AtmSession implements InventoryHolder {
@@ -11,13 +17,18 @@ public class AtmSession implements InventoryHolder {
 	private Player player;
 	private AtmCraft parent;
 	private String authToken;
+	private HashMap<Material,Integer> stackAmounts;
 	
 	public AtmSession(AtmCraft parent, Player player) throws Exception {
 		this.player = player;
 		this.parent = parent;
 		authenticate();
+		populateBalance();
 	}
 	
+	public Player getPlayer() {
+		return player;
+	}
 	private void authenticate() throws Exception {
 		String urlParameters = "account_name=" + this.player.getName();
 		urlParameters += "&identifier=" + getServiceIdentifier();
@@ -25,6 +36,88 @@ public class AtmSession implements InventoryHolder {
 		String url = getServiceURL() + "/login";
 		JSONObject result = Util.postToJson(url, urlParameters);
 		authToken = result.getString("auth_token");
+		Util.sendPlayerMessage(player, "Authenticated as " + player.getName());
+	}
+	
+	private void populateBalance() throws Exception {
+		String urlParameters = "auth_token=" + authToken;
+		String url = getServiceURL() + "/balance";
+		stackAmounts = new HashMap<Material,Integer>();
+		JSONObject result = Util.getToJson(url, urlParameters);
+		JSONArray names = result.names();
+		if (names == null) {
+			return;
+		}
+		for (int i=0; i<names.length(); i++) {
+			String name = names.getString(i);
+			int balance = new Double(result.getDouble(name)).intValue();;
+			Material material;
+			try {
+				material = Material.valueOf(name);
+			}
+			catch (IllegalArgumentException iae) {
+				Util.sendPlayerMessage(player, "Don't recognize item type: " + name);
+				continue;
+			}
+			getInventory().addItem(new ItemStack(material, balance));
+			if (stackAmounts.containsKey(material)) {
+				stackAmounts.put(material, stackAmounts.get(material).intValue() + balance);
+			}
+			else {
+				stackAmounts.put(material, balance);
+			}
+		}
+	}
+
+	private HashMap<Material,Integer> addUpItems() {
+		HashMap<Material,Integer> amounts = new HashMap<Material,Integer>();
+		for (ItemStack stack: getInventory()) {
+			Material material = stack.getType();
+			int amount = stack.getAmount();
+			if (stackAmounts.containsKey(material)) {
+				stackAmounts.put(material, stackAmounts.get(material).intValue() + amount);
+			}
+			else {
+				stackAmounts.put(material, amount);
+			}
+		}
+		return amounts;
+	}
+	
+	protected void itemClicked(InventoryClickEvent event) throws Exception {
+		HashMap<Material,Integer> amounts = addUpItems();
+		for (Material clicked: amounts.keySet()) {
+			if (stackAmounts.containsKey(clicked)) {
+				int value = stackAmounts.remove(clicked);
+				if (value < amounts.get(clicked)) {
+					// deposit
+					deposit(clicked, amounts.get(clicked) - value);
+				}
+				else if (value > amounts.get(clicked)) {
+					// withdrawal
+					withdraw(clicked, value - amounts.get(clicked));
+				}
+			}
+			else {
+				// deposit
+				deposit(clicked, amounts.get(clicked));
+			}
+		}
+		for (Material remaining: stackAmounts.keySet()) {
+			int value = stackAmounts.get(remaining);
+			// withdrawal
+			withdraw(remaining, value);
+		}
+		// replace
+		stackAmounts = amounts;
+	}
+	
+	private void deposit(Material material, int amount) throws Exception {
+		Util.sendPlayerMessage(player, "Deposit " + String.valueOf(amount) + " of " + material.toString());
+	}
+	
+	private void withdraw(Material material, int amount) throws Exception {
+		Util.sendPlayerMessage(player, "Withdraw " + String.valueOf(amount) + " of " + material.toString());
 	}
 	
 	private String getServiceURL() {
