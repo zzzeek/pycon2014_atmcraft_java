@@ -1,5 +1,5 @@
-bankname: My Bank
-
-
-serverurl: http://localhost:8000/
+bankname: my bank
+serverurl: http://127.0.0.1:6543
+identifier: someuser
+secret: password
 

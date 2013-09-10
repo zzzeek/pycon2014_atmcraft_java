@@ -15,6 +15,9 @@ public class AtmSession implements InventoryHolder {
 		this.parent = parent;
 	}
 
+	private void authenticate() {
+		
+	}
 	public String getBankName() {
 		return this.parent.config.getString("bankname");
 	}
