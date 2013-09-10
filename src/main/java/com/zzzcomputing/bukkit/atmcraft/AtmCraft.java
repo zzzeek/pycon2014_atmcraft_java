@@ -32,12 +32,19 @@ public class AtmCraft extends JavaPlugin implements Listener{
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    public void onPlayerInteract(PlayerInteractEvent event) throws Exception {
     	if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
     		Block block = event.getClickedBlock();
     		if (isAtmBlock(block)) {
                 Util.sendPlayerMessage(event.getPlayer(), "seems like an ATM!");
-                AtmSession atmSession = new AtmSession(this, event.getPlayer());
+                AtmSession atmSession;
+                try {
+                    atmSession = new AtmSession(this, event.getPlayer());
+                }
+                catch (Exception e) {
+                    Util.sendPlayerMessage(event.getPlayer(), "Exception on login: " + e.toString());
+                    throw e;
+                }
                 atmSession.display();
     		}
     	}

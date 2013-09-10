@@ -72,6 +72,27 @@
                   <showDeprecation>true</showDeprecation>
               </configuration>
           </plugin>
+         <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+        				<configuration>
+              				<artifactSet>
+              				<includes>
+              				<include>org.json:*</include>
+              				</includes>
+              			</artifactSet>
+              			</configuration>
+       
+                    </execution>
+                </executions>
+            </plugin>
 
   </plugins>
     <finalName>${project.name}</finalName>
