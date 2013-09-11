@@ -66,6 +66,8 @@ public class AtmCraft extends JavaPlugin implements Listener{
     			
     		) {
 
+    		// run the inventory changed on the next event tick.
+    		// much easier.
             Bukkit.getScheduler().runTask(this, new Runnable() {
             	
                 @Override

@@ -50,7 +50,10 @@ public class AtmSession implements InventoryHolder {
 		}
 		for (int i=0; i<names.length(); i++) {
 			String name = names.getString(i);
-			int balance = new Double(result.getDouble(name)).intValue();;
+			int balance = new Double(result.getDouble(name)).intValue();
+			if (balance == 0) {
+				continue;
+			}
 			Material material;
 			try {
 				material = Material.valueOf(name);
@@ -116,15 +119,38 @@ public class AtmSession implements InventoryHolder {
 	}
 	
 	private void deposit(Material material, int amount) {
-		Logger.info("Deposit " + String.valueOf(amount) + " of " + material.toString());
-		Util.sendPlayerMessage(player, "Deposit " + String.valueOf(amount) + " of " + material.toString());
+		withdraw_or_deposit(material, amount, false);
 	}
 	
 	private void withdraw(Material material, int amount) {
-		Logger.info("Withdraw " + String.valueOf(amount) + " of " + material.toString());
-		Util.sendPlayerMessage(player, "Withdraw " + String.valueOf(amount) + " of " + material.toString());
+		withdraw_or_deposit(material, amount, true);
 	}
 	
+	private void withdraw_or_deposit(Material material, int amount, boolean withdraw) {
+		String verb;
+		if (withdraw) {
+			verb = "Withdraw";
+		}
+		else {
+			verb = "Deposit";
+		}
+		Logger.info(verb + " " + String.valueOf(amount) + " of " + material.toString());
+
+		String urlParameters = "auth_token=" + authToken;
+		urlParameters += "&type=" + String.valueOf(material);
+		urlParameters += "&amount=" + String.valueOf(amount);
+		String url = getServiceURL() + (withdraw ? "/withdraw" : "/deposit");
+		try {
+			Util.postToJson(url, urlParameters);
+			Util.sendPlayerMessage(player, verb + " " + String.valueOf(amount) + " of " + material.toString());
+		}
+		catch (Exception e) {
+			Util.sendPlayerMessage(player, verb + " failed: " + e);
+			e.printStackTrace();
+		}
+		
+		
+	}
 	private String getServiceURL() {
 		return this.parent.config.getString("serverurl");
 	}
