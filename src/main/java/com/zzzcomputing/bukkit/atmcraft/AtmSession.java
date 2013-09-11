@@ -72,19 +72,22 @@ public class AtmSession implements InventoryHolder {
 	private HashMap<Material,Integer> addUpItems() {
 		HashMap<Material,Integer> amounts = new HashMap<Material,Integer>();
 		for (ItemStack stack: getInventory()) {
+			if (stack == null) {
+				continue;
+			}
 			Material material = stack.getType();
 			int amount = stack.getAmount();
-			if (stackAmounts.containsKey(material)) {
-				stackAmounts.put(material, stackAmounts.get(material).intValue() + amount);
+			if (amounts.containsKey(material)) {
+				amounts.put(material, amounts.get(material).intValue() + amount);
 			}
 			else {
-				stackAmounts.put(material, amount);
+				amounts.put(material, amount);
 			}
 		}
 		return amounts;
 	}
 	
-	protected void itemClicked(InventoryClickEvent event) throws Exception {
+	protected void inventoryChanged() {
 		HashMap<Material,Integer> amounts = addUpItems();
 		for (Material clicked: amounts.keySet()) {
 			if (stackAmounts.containsKey(clicked)) {
@@ -112,11 +115,13 @@ public class AtmSession implements InventoryHolder {
 		stackAmounts = amounts;
 	}
 	
-	private void deposit(Material material, int amount) throws Exception {
+	private void deposit(Material material, int amount) {
+		Logger.info("Deposit " + String.valueOf(amount) + " of " + material.toString());
 		Util.sendPlayerMessage(player, "Deposit " + String.valueOf(amount) + " of " + material.toString());
 	}
 	
-	private void withdraw(Material material, int amount) throws Exception {
+	private void withdraw(Material material, int amount) {
+		Logger.info("Withdraw " + String.valueOf(amount) + " of " + material.toString());
 		Util.sendPlayerMessage(player, "Withdraw " + String.valueOf(amount) + " of " + material.toString());
 	}
 	

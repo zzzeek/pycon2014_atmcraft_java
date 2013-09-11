@@ -4,11 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -55,16 +55,25 @@ public class AtmCraft extends JavaPlugin implements Listener{
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onAtmSessionClicked(InventoryClickEvent event) throws Exception {
-    	Logger.info("inventory click event");
-        Inventory inventory = event.getInventory();
-        if (inventory instanceof AtmSession) {
-        	try {
-            	((AtmSession)inventory).itemClicked(event);
-        	}
-        	catch (Exception e) {
-                Util.sendPlayerMessage(((AtmSession)inventory).getPlayer(), "Exception on balance operation: " + e.toString());
-                throw e;
-        	}
+        final Inventory inventory = event.getInventory();
+    	if (
+    			inventory.getHolder() instanceof AtmSession &&
+    			event.getCursor().getType() != Material.AIR &&
+    			(
+    					event.getClick() == ClickType.LEFT ||
+    					event.getClick() == ClickType.RIGHT
+    			)
+    			
+    		) {
+
+            Bukkit.getScheduler().runTask(this, new Runnable() {
+            	
+                @Override
+                public void run() {
+                    ((AtmSession)inventory.getHolder()).inventoryChanged();
+                }
+            });
+
         }
     }
     
