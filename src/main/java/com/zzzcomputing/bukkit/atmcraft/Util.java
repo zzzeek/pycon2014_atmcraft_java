@@ -13,18 +13,6 @@ import org.json.JSONObject;
 
 public class Util {
 
-	public static String [] slice(String [] src, int start) {
-		String [] dest = new String[src.length - start];
-		System.arraycopy(src, start, dest, 0, dest.length);
-		return dest;
-	}
-
-	public static String [] sliceEnd(String [] src, int end) {
-		String [] dest = new String[src.length - end];
-		System.arraycopy(src, 0, dest, 0, dest.length);
-		return dest;
-	}
-
 	public static void sendPlayerMessage(Player player, Object ... tokens) {
 		String msg = ChatColor.DARK_PURPLE + "[AC] " + ChatColor.AQUA;
 		for (Object token: tokens) {
@@ -55,7 +43,7 @@ public class Util {
 			connection.setDoOutput(true);
 			connection.setDoInput(true);
 			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); 
+			connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 			connection.setRequestProperty("charset", "utf-8");
 			connection.setRequestProperty("Content-Length", "" + Integer.toString(paramString.getBytes().length));
 			connection.setUseCaches (false);
@@ -73,25 +61,6 @@ public class Util {
 	    java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
 	    return s.hasNext() ? s.next() : "";
 	}
-	
-	public static void main(String [] argv) throws Exception {
-		String urlParameters = "account_name=zzzeek&identifier=atm1&secret=frogpile";
-		String url = "http://localhost:6543/login";
-		JSONObject result = postToJson(url, urlParameters);
-		String authToken = result.getString("auth_token");
-		url = "http://localhost:6543/balance";
-		urlParameters = "auth_token=" + authToken;
-		result = getToJson(url, urlParameters);
-		System.out.println(result);
-		
-	}
-		/*
 
 
-for (JsonNode userJsonNode : userJsonNodes) {
-
-
-
-		 */
-	
 }
