@@ -4,6 +4,16 @@ ATMCraft
 
 This is a Bukkit plugin for Minecraft;   See http://bukkit.org/.
 
+Where are the Bukkit DL's!!?!?
+==============================
+
+These folks are really cagey about the actual releases of Bukkit/Craftbukkit,
+so here's the links:
+
+	http://dl.bukkit.org/downloads/bukkit/
+
+	http://dl.bukkit.org/downloads/craftbukkit/
+
 Building
 ========
 
